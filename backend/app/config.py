@@ -28,8 +28,10 @@ def _secret_key() -> str:
 class Settings:
     # Toggle this once you have a real API key. Everything else in the
     # codebase reads from LLM_PROVIDER, never hardcodes "mock" or "real".
-    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "mock")  # "mock" | "anthropic" | "openai"
+    LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "mock")  # "mock" | "gemini" | "groq" | "anthropic" | "openai"
 
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 

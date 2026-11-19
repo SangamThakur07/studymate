@@ -137,10 +137,81 @@ class OpenAIProvider(LLMProvider):
         return response.choices[0].message.content
 
 
+class GeminiProvider(LLMProvider):
+    def __init__(self):
+        if not settings.GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY is not set in backend/.env")
+        self.api_key = settings.GEMINI_API_KEY
+
+    def complete(self, prompt: str, system: str = "", max_tokens: int = 1000) -> str:
+        import urllib.request
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": max_tokens}
+        }
+        if system:
+            payload["system_instruction"] = {"parts": [{"text": system}]}
+
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    return "".join(p.get("text", "") for p in parts)
+                return ""
+        except Exception as exc:
+            return f"[Gemini Error: {str(exc)}]"
+
+
+class GroqProvider(LLMProvider):
+    def __init__(self):
+        if not settings.GROQ_API_KEY:
+            raise ValueError("GROQ_API_KEY is not set in backend/.env")
+        self.api_key = settings.GROQ_API_KEY
+
+    def complete(self, prompt: str, system: str = "", max_tokens: int = 1000) -> str:
+        import urllib.request
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        payload = {
+            "model": "llama-3.1-8b-instant",
+            "messages": [
+                {"role": "system", "content": system or "You are a helpful, precise AI tutor."},
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": max_tokens
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}"
+            }
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return data["choices"][0]["message"]["content"]
+        except Exception as exc:
+            return f"[Groq Error: {str(exc)}]"
+
+
 def get_llm_provider() -> LLMProvider:
-    if settings.LLM_PROVIDER == "anthropic":
+    provider = settings.LLM_PROVIDER.lower()
+    if provider == "gemini":
+        return GeminiProvider()
+    if provider == "groq":
+        return GroqProvider()
+    if provider == "anthropic":
         return AnthropicProvider()
-    if settings.LLM_PROVIDER == "openai":
+    if provider == "openai":
         return OpenAIProvider()
     return MockLLMProvider()
 
