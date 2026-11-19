@@ -1,0 +1,155 @@
+{
+ "retrieval": [
+  {
+   "query": "How is raw text broken into smaller pieces?",
+   "gold": "splitting text into smaller units called tokens"
+  },
+  {
+   "query": "Which method cuts off word endings to get a root?",
+   "gold": "chops off word endings to reach a root form"
+  },
+  {
+   "query": "Why can stemming give strange results?",
+   "gold": "stems that are not real words"
+  },
+  {
+   "query": "What returns the dictionary form of a word?",
+   "gold": "dictionary base form, called a lemma"
+  },
+  {
+   "query": "Which step needs part-of-speech information?",
+   "gold": "depends on part-of-speech information"
+  },
+  {
+   "query": "How are words turned into numeric vectors?",
+   "gold": "dense numeric vectors in a continuous vector space"
+  },
+  {
+   "query": "Which word vectors are learned from large corpora?",
+   "gold": "learned from large text corpora"
+  },
+  {
+   "query": "How does a model decide which tokens matter more?",
+   "gold": "weigh the importance of different input tokens"
+  },
+  {
+   "query": "What lets a model focus on the relevant part of a long sentence?",
+   "gold": "focus on the relevant part of a long sentence"
+  },
+  {
+   "query": "Which architecture removes recurrence?",
+   "gold": "without recurrence"
+  },
+  {
+   "query": "Which models are BERT and GPT examples of?",
+   "gold": "BERT and GPT are well known examples"
+  },
+  {
+   "query": "How do we measure how close two texts are in meaning?",
+   "gold": "how close two pieces of text are in meaning"
+  },
+  {
+   "query": "What function compares two vectors for similarity?",
+   "gold": "cosine similarity between two vectors"
+  },
+  {
+   "query": "Why are transformers faster to train than recurrent networks?",
+   "gold": "trained in parallel over long sequences"
+  },
+  {
+   "query": "Dividing written language into little pieces that a computer can handle",
+   "gold": "splitting text into smaller units called tokens",
+   "paraphrase": true
+  },
+  {
+   "query": "A quick, rule-based way of trimming suffixes to find the stem",
+   "gold": "chops off word endings to reach a root form",
+   "paraphrase": true
+  },
+  {
+   "query": "Mapping an inflected term back to its canonical headword",
+   "gold": "dictionary base form, called a lemma",
+   "paraphrase": true
+  },
+  {
+   "query": "Representing terms as lists of real numbers where closeness reflects meaning",
+   "gold": "dense numeric vectors in a continuous vector space",
+   "paraphrase": true
+  },
+  {
+   "query": "How can a network decide which parts of its input deserve more focus?",
+   "gold": "weigh the importance of different input tokens",
+   "paraphrase": true
+  },
+  {
+   "query": "Which design dispenses with sequential step-by-step processing?",
+   "gold": "without recurrence",
+   "paraphrase": true
+  },
+  {
+   "query": "Quantifying how alike two passages are in what they convey",
+   "gold": "how close two pieces of text are in meaning",
+   "paraphrase": true
+  },
+  {
+   "query": "Why do these models need less time to learn than ones that go one step at a time?",
+   "gold": "trained in parallel over long sequences",
+   "paraphrase": true
+  }
+ ],
+ "grading": [
+  {
+   "topic": "tokenization",
+   "good": "Tokenization splits text into smaller units called tokens, like words or subwords.",
+   "partial": "Tokenization is about text.",
+   "wrong": "Stemming chops off word endings to reach a root form.",
+   "irrelevant": "I went to the market yesterday and bought some vegetables.",
+   "vague_long": "Tokenization is an important technique that is widely used in many language applications and tasks."
+  },
+  {
+   "topic": "stemming",
+   "good": "Stemming cuts off the ends of words using simple rules to get a root form.",
+   "partial": "Stemming changes words.",
+   "wrong": "Lemmatization returns the dictionary base form of a word using vocabulary.",
+   "irrelevant": "The football match ended in a draw after extra time.",
+   "vague_long": "Stemming is a common approach used by many systems when working with language data in practice."
+  },
+  {
+   "topic": "lemmatization",
+   "good": "Lemmatization reduces a word to its dictionary base form, called a lemma.",
+   "partial": "Lemmatization is related to words.",
+   "wrong": "Word embeddings represent words as dense numeric vectors.",
+   "irrelevant": "My favourite colour is blue and I like long walks.",
+   "vague_long": "Lemmatization is a useful step that is applied in several language processing applications."
+  },
+  {
+   "topic": "word embeddings",
+   "good": "Word embeddings represent words as dense numeric vectors so similar words are close together.",
+   "partial": "Embeddings are numbers.",
+   "wrong": "An attention mechanism weighs the importance of different input tokens.",
+   "irrelevant": "The train to the city leaves at nine every morning.",
+   "vague_long": "Word embeddings are a popular modern idea that many researchers and engineers rely on today."
+  },
+  {
+   "topic": "attention mechanism",
+   "good": "An attention mechanism lets a model weigh the importance of different input tokens.",
+   "partial": "Attention helps a model.",
+   "wrong": "Tokenization splits text into smaller units called tokens.",
+   "irrelevant": "She baked a chocolate cake for the birthday party."
+  },
+  {
+   "topic": "transformers",
+   "good": "Transformers are neural networks built entirely on attention, without recurrence.",
+   "partial": "Transformers are a kind of model.",
+   "wrong": "Stemming is a crude rule based method for reaching a root form.",
+   "irrelevant": "It rained heavily all weekend so we stayed indoors."
+  },
+  {
+   "topic": "semantic similarity",
+   "good": "Semantic similarity measures how close two texts are in meaning, often using vector embeddings.",
+   "partial": "Similarity compares things.",
+   "wrong": "Lemmatization reduces a word to its dictionary base form.",
+   "irrelevant": "The museum opens at ten and closes at six."
+  }
+ ]
+}
