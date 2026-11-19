@@ -20,10 +20,13 @@ export default function App() {
   return (
     <>
       <nav className="top-nav">
-        <Link to="/" className="brand" style={{ textDecoration: 'none', color: 'var(--ink)' }}>AI Study Assistant</Link>
-        <span className="tagline">agentic AI study assistant</span>
+        <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
+          <span>🎓</span>
+          <span>StudyMate</span>
+        </Link>
+        <span className="tagline">· Agentic NLP Study Assistant</span>
         {signedIn && (
-          <button className="secondary" style={{ marginLeft: 'auto', padding: '0.35em 0.9em' }} onClick={signOut}>
+          <button className="secondary" style={{ marginLeft: 'auto', padding: '0.4rem 0.9rem', fontSize: '0.85rem' }} onClick={signOut}>
             Sign out
           </button>
         )}

@@ -118,8 +118,21 @@ export default function Dashboard() {
     }
   }
 
-  if (error) return <div className="shell"><p style={{ color: 'var(--alert)' }}>{error}</p></div>
-  if (!profile) return <div className="shell"><p className="loading-text">Loading your profile…</p></div>
+  if (error) return (
+    <div className="shell">
+      <div className="card" style={{ borderColor: 'var(--danger)', background: 'var(--danger-soft)' }}>
+        <p style={{ color: 'var(--danger-text)', margin: 0, fontWeight: 500 }}>{error}</p>
+      </div>
+    </div>
+  )
+
+  if (!profile) return (
+    <div className="shell">
+      <div className="card" style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+        <p className="loading-text" style={{ fontSize: '1.1rem', margin: 0 }}>Loading your study assistant…</p>
+      </div>
+    </div>
+  )
 
   const masteryEntries = Object.entries(profile.mastery || {})
   const correctCount = answers.filter(Boolean).length
@@ -127,185 +140,266 @@ export default function Dashboard() {
 
   return (
     <div className="shell">
-      <h1>Welcome back, {profile.name}</h1>
-      <p>Subject: {profile.subject} · Goal: {profile.goal_score}%</p>
+      {/* Welcome Banner Card */}
+      <div className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.8rem' }}>
+          <div>
+            <h1 style={{ marginBottom: '0.2rem' }}>Welcome back, {profile.name} 👋</h1>
+            <p style={{ margin: 0 }}>
+              Subject: <strong>{profile.subject}</strong> · Goal: <strong>{profile.goal_score}%</strong>
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span className="badge badge-primary">AI Powered</span>
+            <span className="badge badge-success">Online</span>
+          </div>
+        </div>
+      </div>
 
+      {/* Agent Decision Card */}
       {decision && (
         <div className="decision-card">
-          <div className="label">What the agent decided</div>
-          <strong>
-            {decision.action === 'intervene' ? `Focus on: ${decision.concept}`
-              : decision.action === 'review' ? `Time to review: ${decision.concept}`
-              : 'Nothing to catch up on'}
-          </strong>
-          <p style={{ margin: '0.4em 0 0 0' }}>{decision.reasoning}</p>
-        </div>
-      )}
-
-      <hr className="rule" />
-
-      <h2>Your study material</h2>
-      <p>Upload your notes or textbook (PDF). The agent builds your knowledge graph, explains it simply, and tests you.</p>
-      <label htmlFor="material-upload" className="upload-drop">
-        {uploading ? 'Reading your PDF and finding topics…' : 'Click to choose a PDF'}
-      </label>
-      {uploading && (
-        <p style={{ fontSize: '0.85rem' }}>
-          The first upload after the server starts also loads the language model, which can take a minute. Later uploads are quicker.
-        </p>
-      )}
-      <input id="material-upload" type="file" accept="application/pdf"
-        onChange={handleFileUpload} disabled={uploading} style={{ display: 'none' }} />
-      {uploadError && <p style={{ color: 'var(--alert)' }}>{uploadError}</p>}
-      {uploadResult && (
-        <div className="decision-card" style={{ background: 'var(--growth-soft)', borderColor: '#B9D8CB' }}>
-          <div className="label" style={{ color: 'var(--growth)' }}>
-            Found {uploadResult.concepts_extracted.length} topics in {uploadResult.filename}
+          <div className="label">
+            <span>🤖</span>
+            <span>Agent Intelligence Engine</span>
           </div>
-          <p style={{ margin: '0.4em 0 0 0' }}>{uploadResult.concepts_extracted.join(' · ')}</p>
-          {uploadResult.seconds && (
-            <p style={{ margin: '0.5em 0 0 0', fontSize: '0.8rem' }}>
-              Found in {uploadResult.seconds.total}s. Your notes are being indexed for search in the background.
-            </p>
-          )}
+          <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#4C1D95', marginBottom: '0.3rem' }}>
+            {decision.action === 'intervene' ? `Intervention: Focus on ${decision.concept}`
+              : decision.action === 'review' ? `Spaced Revision: ${decision.concept}`
+              : 'Knowledge State: Ready to Advance'}
+          </div>
+          <p style={{ margin: 0, color: '#5B21B6', fontSize: '0.92rem' }}>{decision.reasoning}</p>
         </div>
       )}
 
-      <hr className="rule" />
-
-      <h2>Your progress</h2>
-      {(!progress || progress.topics.length === 0) && <p>No topics yet. Upload a PDF above to get started.</p>}
-      {progress && progress.topics.length > 0 && (
-        <>
-          <p style={{ color: 'var(--ink)' }}>
-            {progress.summary.strong} of {progress.summary.total} topics strong
-            {progress.summary.due > 0 && <> · <span className="tag-due">{progress.summary.due} due for review</span></>}
-            {progress.summary.weak > 0 && <> · {progress.summary.weak} need practice</>}
-            {progress.summary.new > 0 && <> · {progress.summary.new} not started</>}
+      {/* Study Material Upload Section */}
+      <div className="card">
+        <h2>📚 Study Material & RAG Indexing</h2>
+        <p>Upload your notes or textbook (PDF). StudyMate extracts key concepts, builds your prerequisite graph, and indexes passages for semantic retrieval.</p>
+        
+        <label htmlFor="material-upload" className="upload-drop">
+          <span style={{ fontSize: '2rem' }}>📄</span>
+          <span style={{ fontWeight: 600 }}>{uploading ? 'Analyzing PDF & Extracting Key Concepts…' : 'Click to Upload Course Notes (PDF)'}</span>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-light)' }}>Supports lecture slides, textbook excerpts, and study guides</span>
+        </label>
+        
+        {uploading && (
+          <p style={{ fontSize: '0.85rem', color: 'var(--primary)', marginTop: '0.8rem', textAlign: 'center' }}>
+            Embedding notes with MiniLM-L6-v2 vector model. This builds the hybrid index for accurate semantic retrieval…
           </p>
-          {progress.topics.map((t) => (
-            <div className="mastery-row" key={t.name}>
-              <div className="mastery-name">
-                {t.name}
-                <div className={`mastery-status ${t.status === 'due' ? 'tag-due' : ''}`}>
-                  {t.status === 'new' && 'Not started'}
-                  {t.status === 'weak' && 'Needs more practice'}
-                  {t.status === 'due' && `Due for review (practised ${t.days_since_practice} day(s) ago)`}
-                  {t.status === 'scheduled' && (t.review_in_days === 0 ? 'Review due today' : `Next review in ${t.review_in_days} day(s)`)}
-                </div>
-              </div>
-              <div className="mastery-bar-track">
-                <div className={`mastery-bar-fill ${t.score < 60 ? 'weak' : ''}`} style={{ width: `${Math.min(t.score, 100)}%` }} />
-              </div>
-              <div className="mastery-pct">{Math.round(t.score)}%</div>
+        )}
+        
+        <input id="material-upload" type="file" accept="application/pdf"
+          onChange={handleFileUpload} disabled={uploading} style={{ display: 'none' }} />
+        
+        {uploadError && (
+          <p style={{ color: 'var(--danger-text)', background: 'var(--danger-soft)', padding: '0.6rem 0.8rem', borderRadius: '6px', marginTop: '0.8rem' }}>
+            {uploadError}
+          </p>
+        )}
+        
+        {uploadResult && (
+          <div style={{ background: 'var(--success-soft)', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '1rem', marginTop: '1rem' }}>
+            <div style={{ fontWeight: 700, color: 'var(--success-text)', marginBottom: '0.4rem' }}>
+              ✓ Successfully indexed {uploadResult.concepts_extracted.length} concepts from {uploadResult.filename}
             </div>
-          ))}
-          {progress.recent.length > 0 && (
-            <details style={{ marginTop: '1rem' }}>
-              <summary style={{ cursor: 'pointer', fontSize: '0.9rem' }}>Recent activity ({progress.recent.length})</summary>
-              {progress.recent.map((r, i) => (
-                <p key={i} style={{ margin: '0.5em 0', fontSize: '0.85rem' }}>
-                  <strong style={{ color: r.correct ? 'var(--growth)' : 'var(--alert)' }}>{r.correct ? 'Correct' : 'Incorrect'}</strong>
-                  {' · '}{r.concept}: {r.question}
-                </p>
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', margin: '0.4rem 0' }}>
+              {uploadResult.concepts_extracted.map((c) => (
+                <span key={c} className="badge badge-success" style={{ textTransform: 'none' }}>{c}</span>
               ))}
-            </details>
-          )}
-        </>
-      )}
-
-      <hr className="rule" />
-
-      <h2>Study session</h2>
-
-      {stage === 'idle' && (
-        <button onClick={startSession} disabled={loading || masteryEntries.length === 0}>
-          {loading ? 'Preparing…' : 'Explain the next topic'}
-        </button>
-      )}
-
-      {stage !== 'idle' && explanation && (
-        <div className="explain-box">
-          <div className="label" style={{ fontSize: '0.8rem', color: 'var(--growth)' }}>
-            Let's learn: {explanation.decision.concept || 'general review'}
+            </div>
+            {uploadResult.seconds && (
+              <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.8rem', color: 'var(--success-text)' }}>
+                Processing completed in {uploadResult.seconds.total}s. Passages indexed into vector database.
+              </p>
+            )}
           </div>
-          <p>{explanation.explanation}</p>
-          {explanation.sources && explanation.sources.length > 0 && (
-            <details style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: 'var(--ink-soft)' }}>
-              <summary style={{ cursor: 'pointer' }}>
-                Retrieved from your notes ({explanation.sources.length} passages, {explanation.sources[0].method})
-              </summary>
-              {explanation.sources.map((src) => (
-                <p key={src.chunk_index} style={{ margin: '0.6em 0', fontSize: '0.85rem' }}>
-                  <strong>match {src.score}</strong>: {src.text}
-                </p>
+        )}
+      </div>
+
+      {/* Mastery Progress Card */}
+      <div className="card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h2 style={{ margin: 0 }}>📊 Knowledge Mastery</h2>
+          {progress && progress.topics.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <span className="badge badge-success">{progress.summary.strong} Strong</span>
+              {progress.summary.due > 0 && <span className="badge badge-warning">{progress.summary.due} Due</span>}
+              {progress.summary.weak > 0 && <span className="badge badge-danger">{progress.summary.weak} Weak</span>}
+            </div>
+          )}
+        </div>
+
+        {(!progress || progress.topics.length === 0) && (
+          <p style={{ margin: 0 }}>No topics indexed yet. Upload a PDF above to initialize your learning graph.</p>
+        )}
+
+        {progress && progress.topics.length > 0 && (
+          <>
+            <div style={{ marginTop: '0.5rem' }}>
+              {progress.topics.map((t) => (
+                <div className="mastery-row" key={t.name}>
+                  <div className="mastery-name">
+                    <div>{t.name}</div>
+                    <div className="mastery-status">
+                      {t.status === 'new' && <span style={{ color: 'var(--text-light)' }}>Not started</span>}
+                      {t.status === 'weak' && <span style={{ color: 'var(--danger)' }}>Needs practice</span>}
+                      {t.status === 'due' && <span style={{ color: 'var(--warning)' }}>Due for review</span>}
+                      {t.status === 'scheduled' && <span style={{ color: 'var(--success)' }}>On track</span>}
+                    </div>
+                  </div>
+                  <div className="mastery-bar-track">
+                    <div className={`mastery-bar-fill ${t.score < 60 ? 'weak' : ''}`} style={{ width: `${Math.min(t.score, 100)}%` }} />
+                  </div>
+                  <div className="mastery-pct">{Math.round(t.score)}%</div>
+                </div>
               ))}
-            </details>
-          )}
-        </div>
-      )}
+            </div>
 
-      {stage === 'explained' && (
-        <>
-          <p style={{ marginTop: '1rem' }}>Ready to test yourself? Choose a format:</p>
-          <div className="choice-row">
-            <button onClick={() => chooseTestType('mcq')} disabled={loading}>
-              {loading ? 'Building your test…' : 'Multiple choice test'}
-            </button>
-            <button className="secondary" onClick={() => chooseTestType('open')} disabled={loading}>Written test</button>
+            {progress.recent.length > 0 && (
+              <details style={{ marginTop: '1.25rem', paddingTop: '0.85rem', borderTop: '1px solid var(--card-border)' }}>
+                <summary style={{ cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  View Recent Assessment History ({progress.recent.length})
+                </summary>
+                <div style={{ marginTop: '0.6rem' }}>
+                  {progress.recent.map((r, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0', fontSize: '0.88rem', borderBottom: '1px solid #F8FAFC' }}>
+                      <span className={`badge ${r.correct ? 'badge-success' : 'badge-danger'}`} style={{ minWidth: '65px', textAlign: 'center' }}>
+                        {r.correct ? 'Pass' : 'Review'}
+                      </span>
+                      <strong style={{ minWidth: '130px' }}>{r.concept}</strong>
+                      <span style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.question}</span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Interactive Study Session Card */}
+      <div className="card">
+        <h2>🎯 Adaptive Study Session</h2>
+        <p>Learn target concepts guided by the agent. Understand core mechanisms before verifying your retention.</p>
+
+        {stage === 'idle' && (
+          <button onClick={startSession} disabled={loading || masteryEntries.length === 0} style={{ padding: '0.8rem 1.6rem', fontSize: '1rem' }}>
+            {loading ? 'Preparing Material…' : '🚀 Explain Next Recommended Topic'}
+          </button>
+        )}
+
+        {stage !== 'idle' && explanation && (
+          <div className="explain-box">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: 'var(--success-text)', fontSize: '0.9rem', marginBottom: '0.4rem' }}>
+              <span>📖</span>
+              <span>Concept Briefing: {explanation.decision.concept || 'General Review'}</span>
+            </div>
+            <p>{explanation.explanation}</p>
+            {explanation.sources && explanation.sources.length > 0 && (
+              <details style={{ marginTop: '0.9rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
+                  🔍 Grounded Source Evidence ({explanation.sources.length} passages via {explanation.sources[0].method} RAG)
+                </summary>
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {explanation.sources.map((src) => (
+                    <div key={src.chunk_index} style={{ background: '#FFFFFF', padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid #DCFCE7' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--success-text)', fontWeight: 600, marginBottom: '0.2rem' }}>
+                        <span>Passage #{src.chunk_index + 1}</span>
+                        <span>Relevance Score: {src.score}</span>
+                      </div>
+                      <div style={{ color: 'var(--text-main)', fontSize: '0.86rem' }}>{src.text}</div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
           </div>
-        </>
-      )}
+        )}
 
-      {(stage === 'quiz' || stage === 'result') && quiz && (
-        <div className="quiz-box">
-          <div style={{ fontSize: '0.8rem', color: 'var(--ink-soft)', marginBottom: '0.6rem' }}>
-            Question {qIndex + 1} of {questions.length}
-            {quiz.review && <span> · Review of a related topic: {quiz.concept_name}</span>}
+        {stage === 'explained' && (
+          <div style={{ marginTop: '1.25rem' }}>
+            <p style={{ fontWeight: 600, color: 'var(--text-main)' }}>Ready to verify your understanding? Choose a test format:</p>
+            <div className="choice-row">
+              <button onClick={() => chooseTestType('mcq')} disabled={loading}>
+                {loading ? 'Generating Questions…' : '📝 Multiple Choice Test (5 Qs)'}
+              </button>
+              <button className="secondary" onClick={() => chooseTestType('open')} disabled={loading}>
+                ✍️ Written Synthesis Test
+              </button>
+            </div>
           </div>
-          <p style={{ color: 'var(--ink)', fontWeight: 500 }}>{quiz.question}</p>
+        )}
 
-          {stage === 'quiz' && (
-            <>
-              {isMcq ? quiz.options.map((opt) => (
-                <label key={opt} className={`mcq-option ${selected === opt ? 'selected' : ''}`}>
-                  <input type="radio" name="mcq" checked={selected === opt} onChange={() => setSelected(opt)} />
-                  {opt}
-                </label>
-              )) : (
-                <textarea rows={4} placeholder="Type your answer…" value={answer} onChange={(e) => setAnswer(e.target.value)} />
-              )}
-              <div style={{ marginTop: '0.8em' }}>
-                <button onClick={submit} disabled={loading || !canSubmit}>{loading ? 'Checking…' : 'Submit answer'}</button>
-              </div>
-            </>
-          )}
+        {(stage === 'quiz' || stage === 'result') && quiz && (
+          <div className="quiz-box">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+              <span className="badge badge-primary">Question {qIndex + 1} of {questions.length}</span>
+              {quiz.review && <span className="badge badge-warning">Review: {quiz.concept_name}</span>}
+            </div>
+            
+            <p style={{ color: 'var(--text-main)', fontWeight: 600, fontSize: '1.05rem', margin: '0.5rem 0 1rem 0' }}>
+              {quiz.question}
+            </p>
 
-          {stage === 'result' && evaluation && (
-            <>
-              <div className={`feedback-box ${evaluation.evaluation.score >= 6 ? 'good' : 'needs-work'}`}>
-                <div className="score-badge">{isMcq ? (evaluation.evaluation.is_correct ? 'Correct' : 'Incorrect') : `${evaluation.evaluation.score}/10`}</div>
-                {evaluation.evaluation.feedback}
-              </div>
-              <div style={{ marginTop: '1em' }}>
-                <button className="secondary" onClick={nextQuestion}>{lastQuestion ? 'See results' : 'Next question'}</button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+            {stage === 'quiz' && (
+              <>
+                {isMcq ? quiz.options.map((opt) => (
+                  <label key={opt} className={`mcq-option ${selected === opt ? 'selected' : ''}`}>
+                    <input type="radio" name="mcq" checked={selected === opt} onChange={() => setSelected(opt)} />
+                    <span>{opt}</span>
+                  </label>
+                )) : (
+                  <div>
+                    <textarea rows={4} placeholder="Explain the concept in your own words…" value={answer} onChange={(e) => setAnswer(e.target.value)} />
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginTop: '0.3rem', display: 'block' }}>
+                      Tip: Write a substantive explanation using your own words. Verbatim copying is automatically penalized.
+                    </span>
+                  </div>
+                )}
+                <div style={{ marginTop: '1.2rem' }}>
+                  <button onClick={submit} disabled={loading || !canSubmit} style={{ padding: '0.75rem 1.6rem' }}>
+                    {loading ? 'Evaluating with NLP…' : 'Submit for Grading'}
+                  </button>
+                </div>
+              </>
+            )}
 
-      {stage === 'summary' && (
-        <div className="quiz-box">
-          <h3>Test complete</h3>
-          <p style={{ color: 'var(--ink)' }}>
-            You got <strong>{correctCount} of {questions.length}</strong> correct
-            {correctCount === questions.length ? ' — perfect.' : correctCount / questions.length >= 0.6 ? ' — good work.' : ' — this topic needs another pass.'}
-          </p>
-          <p>Your mastery bars above have been updated. The agent will pick your next topic based on them.</p>
-          <button onClick={resetSession}>Next topic</button>
-        </div>
-      )}
+            {stage === 'result' && evaluation && (
+              <>
+                <div className={`feedback-box ${evaluation.evaluation.score >= 6 ? 'good' : 'needs-work'}`}>
+                  <div className="score-badge">
+                    {isMcq ? (evaluation.evaluation.is_correct ? '✓ Correct' : '✗ Incorrect') : `${evaluation.evaluation.score}/10`}
+                  </div>
+                  <div>{evaluation.evaluation.feedback}</div>
+                </div>
+                <div style={{ marginTop: '1.25rem' }}>
+                  <button onClick={nextQuestion} style={{ padding: '0.75rem 1.6rem' }}>
+                    {lastQuestion ? 'View Final Results 🏆' : 'Next Question ➔'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {stage === 'summary' && (
+          <div className="quiz-box" style={{ textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
+              {correctCount === questions.length ? '🎉' : correctCount / questions.length >= 0.6 ? '👏' : '📚'}
+            </div>
+            <h2>Assessment Complete!</h2>
+            <p style={{ fontSize: '1.15rem', color: 'var(--text-main)', margin: '0.5rem 0 1rem 0' }}>
+              You achieved <strong>{correctCount} out of {questions.length}</strong> correct
+              {correctCount === questions.length ? ' — Outstanding mastery!' : correctCount / questions.length >= 0.6 ? ' — Solid understanding.' : ' — Recommended for revision.'}
+            </p>
+            <p style={{ maxWidth: '480px', margin: '0 auto 1.5rem auto', fontSize: '0.9rem' }}>
+              Your knowledge graph and exponential mastery scores have been updated. The agent has revised its study plan based on these results.
+            </p>
+            <button onClick={resetSession} style={{ padding: '0.75rem 1.6rem' }}>Continue to Next Topic ➔</button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

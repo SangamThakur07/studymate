@@ -27,36 +27,48 @@ export default function Login() {
   }
 
   return (
-    <div className="shell">
-      <h1>{mode === 'login' ? 'Sign in' : 'Create your account'}</h1>
-      <p>
-        {mode === 'login'
-          ? 'Welcome back. Your notes, topics and progress are saved to your account.'
-          : 'Your uploaded notes and progress stay private to your account.'}
-      </p>
-
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="email" required autoComplete="email" value={email}
-          onChange={(e) => setEmail(e.target.value)} />
-
-        <label htmlFor="password">Password {mode === 'register' && '(at least 8 characters)'}</label>
-        <input id="password" type="password" required minLength={mode === 'register' ? 8 : undefined}
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          value={password} onChange={(e) => setPassword(e.target.value)} />
-
-        {error && <p style={{ color: 'var(--alert)', marginTop: '1em' }}>{error}</p>}
-
-        <div style={{ marginTop: '1.6em', display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
-          </button>
-          <button type="button" className="secondary"
-            onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null) }}>
-            {mode === 'login' ? 'I need an account' : 'I already have an account'}
-          </button>
+    <div className="shell" style={{ maxWidth: '480px', paddingTop: '4rem' }}>
+      <div className="card" style={{ padding: '2.2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem' }}>🎓</div>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.3rem' }}>
+            {mode === 'login' ? 'Sign in to StudyMate' : 'Create your account'}
+          </h1>
+          <p style={{ margin: 0, fontSize: '0.92rem' }}>
+            {mode === 'login'
+              ? 'Access your saved notes, knowledge graph, and mastery metrics.'
+              : 'Start learning with an autonomous NLP agent personalized to your notes.'}
+          </p>
         </div>
-      </form>
+
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">Email address</label>
+          <input id="email" type="email" required autoComplete="email" placeholder="student@university.edu" value={email}
+            onChange={(e) => setEmail(e.target.value)} />
+
+          <label htmlFor="password">Password {mode === 'register' && '(min. 8 characters)'}</label>
+          <input id="password" type="password" required minLength={mode === 'register' ? 8 : undefined}
+            placeholder="••••••••"
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            value={password} onChange={(e) => setPassword(e.target.value)} />
+
+          {error && (
+            <p style={{ color: 'var(--danger-text)', background: 'var(--danger-soft)', padding: '0.65rem', borderRadius: '6px', marginTop: '1rem', fontSize: '0.88rem' }}>
+              {error}
+            </p>
+          )}
+
+          <div style={{ marginTop: '1.8rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.75rem' }}>
+              {loading ? 'Authenticating…' : mode === 'login' ? 'Sign in' : 'Create Account'}
+            </button>
+            <button type="button" className="secondary" style={{ width: '100%', padding: '0.7rem' }}
+              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(null) }}>
+              {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
