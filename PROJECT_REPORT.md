@@ -1,5 +1,6 @@
 # StudyMate: An Autonomous Agentic NLP Learning Assistant with Hybrid Retrieval-Augmented Generation, Prerequisite Modeling, and Semantic Evaluation
 
+**Format:** 7-Page Academic Standard Project Report  
 **Authors / Team Members:**
 1. **Sangam Thakur** (Registration No: 12403852)  
 2. **Viren Poonia** (Registration No: 12409626)  
@@ -20,129 +21,125 @@ Uploaded learning materials (PDFs) are segmented and indexed into a **Hybrid Ret
 
 ---
 
-## 1. Introduction & Motivation
+## 1. Introduction & Problem Formulation
 
-Recent advances in Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) have popularized conversational educational aids. However, a fundamental pedagogical limitation of existing architectures is their **reactive nature**:
-1. **Absence of Student State Modeling**: Off-the-shelf chatbots do not track a student's evolving concept mastery over time.
-2. **Lack of Prerequisite Awareness**: When a student struggles with a higher-order concept (e.g., *Self-Attention*), standard RAG systems repeat explanations of that concept rather than diagnosing that the student has not mastered its fundamental prerequisite (e.g., *Word Embeddings*).
-3. **Flawed Answer Evaluation**: Cosine similarity in embedding space measures topical closeness rather than factual correctness. Consequently, vague, evasive student responses ("Tokenization is a widely used and very important technique in modern language systems") frequently achieve artificially inflated similarity scores against reference definitions.
+### 1.1 Overview & Pedagogical Context
+The emergence of transformer language models has revolutionized automated educational tools. While conversational search interfaces allow students to query textbook materials, real-world learning requires systematic progression through foundational prerequisites, continuous self-assessment, and diagnostic feedback.
 
-**StudyMate** addresses these challenges by implementing an end-to-end **Agentic NLP Learning System**. It actively perceives learner state, navigates a prerequisite knowledge graph, decides what to teach next, and objectively grades answers against the student's own uploaded notes.
+### 1.2 Critical Limitations of Standard RAG Chatbots
+Standard RAG systems exhibit three fundamental limitations when applied to education:
+1. **Passive Architecture**: Standard chatbots require the learner to identify what questions to ask. A student with foundational misunderstandings cannot reliably self-diagnose their conceptual gaps.
+2. **Absence of Mastery Modeling**: Ordinary RAG systems maintain no persistent representation of student retention or decay across topics over time.
+3. **Vulnerability to Superficial Answers**: In automated answer grading, dense embedding similarity measures topical closeness rather than correctness. Consequently, vague responses (*"Tokenization is an important technique used in NLP applications"*) score artificially high (0.75+) against reference definitions.
 
----
+### 1.3 Problem Statement
+To design an autonomous, privacy-preserving NLP learning assistant capable of ingesting raw course notes (PDFs), modeling prerequisite concept hierarchies, synthesizing contextual assessment items without manual question banks, and objectively grading written answers without expensive external API subscriptions.
 
-## 2. Problem Statement & Core Objectives
-
-### 2.1 Problem Statement
-Designing an autonomous learning agent that can reliably ingest unstructured academic notes, construct a learning dependency graph, generate contextual test items without data leakage, and grade free-form answers fairly without relying on expensive, black-box external APIs.
-
-### 2.2 Core Objectives
-- **Autonomous Agentic Decision Loop**: Implement a perception-reason-action-audit loop that selects pedagogical actions and logs reasoned explanations to an immutable audit trail (`AgentActionLog`).
-- **Hybrid RAG Retrieval Engine**: Combine dense semantic representations with lexical frequency vectors to ensure high retrieval accuracy under both exact-keyword and heavy-paraphrase querying.
-- **Dynamic Question Synthesis**: Formulate cloze-deletion MCQs and written questions directly from ingested notes without manual question banking.
-- **Calibrated Semantic Grading & Copy Detection**: Measure student understanding via semantic similarity while penalizing evasive generic answers and verbatim copy-pasting from source materials.
-- **Production Readiness & Multi-Tenancy**: Provide isolated user sessions, salted password hashing, JWT authentication, and a responsive single-server architecture.
+### 1.4 Core Objectives
+- **Closed-Loop Agentic Control**: Develop an autonomous Perceive $\rightarrow$ Reason $\rightarrow$ Act $\rightarrow$ Audit loop that plans study sessions and records auditable reasoning traces into an `AgentActionLog` database.
+- **Hybrid Information Retrieval**: Combine dense semantic vectors (`all-MiniLM-L6-v2`) with sparse lexical vectors (TF-IDF) to guarantee high passage retrieval under both verbatim and paraphrased querying.
+- **Dynamic In-Corpus Question Generation**: Formulate multiple-choice cloze questions with distractors sampled from the same document, alongside 4 structured written question archetypes (*define*, *compare*, *explain*, *why*).
+- **Calibrated Multi-Stage Answer Grading**: Implement length-gating heuristics, key-term coverage verification, and anti-plagiarism copy penalties to enforce rigorous grading.
+- **Unified Production Architecture**: Deliver a responsive, single-server FastAPI/React application with salted PBKDF2 password hashing and JWT authentication.
 
 ---
 
-## 3. System Architecture & Methodology
+## 2. Literature Review & Theoretical Foundations
 
-```mermaid
-flowchart TD
-    subgraph Data Ingestion & Indexing
-        A[Student Notes PDF] --> B[pypdf Extraction & Sentence Segmentation]
-        B --> C[KeyBERT + Rule-Based Topic Filtering]
-        B --> D[Sliding Window Chunking with Overlap]
-        D --> E1[MiniLM-L6-v2 Dense Vectors]
-        D --> E2[TF-IDF Sparse Matrix]
-        E1 & E2 --> F[Hybrid Vector Store]
-    end
+### 2.1 Dense vs. Sparse Vector Representations
+Information retrieval methods typically fall into two paradigms: sparse lexical frequency matching (TF-IDF, BM25) and dense semantic representations (transformers). Sparse representations excel when student queries share exact vocabulary with the source text but fail when queries use synonyms or paraphrases. Dense sentence embeddings map text into a continuous latent space where vector distance corresponds to semantic meaning:
+$$\text{Cosine}(u, v) = \frac{u \cdot v}{\|u\| \|v\|}$$
+While dense models capture semantic intent, they can occasionally return false positives on queries that share no technical terms. Fusing normalized dense cosine scores with sparse TF-IDF linear kernels combines lexical exactness with semantic generalization.
 
-    subgraph Agentic Reasoning Loop
-        G[Student Mastery Profile] --> H[NetworkX Prerequisite DAG]
-        H --> I{Agent Decision Engine}
-        I -->|Prerequisite Weak| J[Intervene on Prerequisite Topic]
-        I -->|Retention Decayed| K[Trigger Spaced Revision]
-        I -->|Concept Mastered| L[Advance to Downstream Concept]
-    end
+### 2.2 Knowledge Graphs & Prerequisite Dependency DAGs
+Curriculum mastery is structured as a Directed Acyclic Graph (DAG) $G = (V, E)$, where vertices $V$ represent concepts and directed edges $E$ represent prerequisite requirements (*Tokenization $\rightarrow$ Word Embeddings $\rightarrow$ Attention $\rightarrow$ Transformers*). By applying topological sorting algorithms via NetworkX, the agent determines valid learning sequences and identifies root causes when a student struggles on downstream topics.
 
-    subgraph Evaluation & Feedback
-        F & I --> M[Grounded Question Generator: Cloze & Written]
-        M --> N[Student Answer Submission]
-        N --> O[Multi-Criteria NLP Grading Engine]
-        O --> P[Exponential Moving Average Mastery Update]
-        P --> G
-        O --> Q[Audit Trail Logged to AgentActionLog]
-    end
-```
+### 2.3 Automated Question Generation (AQG) & Distractor Selection
+Cloze deletion constructs test items by masking conceptual target terms from source sentences. The primary challenge in automated MCQ generation lies in selecting plausible distractors. Random dictionary words create obvious, low-quality questions. StudyMate harvests candidate distractors directly from the co-extracted concept pool of the student's uploaded document, ensuring that incorrect choices are contextually plausible within the same domain.
 
-### 3.1 Document Chunking & Ingestion
-Uploaded PDF notes are parsed using `pypdf`. Extracted text undergoes sentence boundary detection with regular expression patterns (`(?<=[.!?])\s+`). Text is grouped into overlapping windows:
-- **Maximum Chunk Size**: 600 characters.
-- **Boundary Overlap**: 1 sentence maintained across adjacent chunks to preserve cross-boundary semantic relationships.
-
-### 3.2 Keyphrase Extraction & Topic Cleaning
-Raw candidate keyphrases are extracted via `KeyBERT` (`all-MiniLM-L6-v2`) with an n-gram range of $(1, 2)$. To remove spurious fragments, a rule-based filter enforces:
-1. **Edge Stop-Word Removal**: Candidate phrases beginning or ending with English stop words are rejected.
-2. **Part-of-Speech Heuristics**: Pure verb phrases or generic filler prefixes (*good*, *important*, *various*) are discarded.
-3. **Grounding Threshold**: A candidate concept must possess at least 2 complete sentences of context in the source document to support assessment generation.
-
-### 3.3 Hybrid RAG Retrieval Engine
-To overcome the known trade-offs between dense semantic representations and exact lexical keyword matching, StudyMate employs a hybrid scoring fusion:
-$$\text{Score}_{\text{dense}} = \frac{\mathbf{q} \cdot \mathbf{c}_i}{\|\mathbf{q}\| \|\mathbf{c}_i\|}$$
-$$\text{Score}_{\text{lexical}} = \text{TF-IDF}(\mathbf{q}) \cdot \text{TF-IDF}(\mathbf{c}_i)$$
-$$\text{Score}_{\text{hybrid}} = \alpha \cdot \text{Norm}(\text{Score}_{\text{dense}}) + (1 - \alpha) \cdot \text{Norm}(\text{Score}_{\text{lexical}})$$
-The top $k=3$ passages are provided to the agent for contextual grounding, pedagogical explanations, and reference definition extraction.
-
-### 3.4 Dynamic Question Generation
-- **Multiple-Choice Questions (MCQs)**: Defining sentences are parsed for the target concept. The target is blanked via regular expression substitution (`_____`). Distractors are sampled directly from the document's co-extracted concept pool, guaranteeing high contextual plausibility while eliminating out-of-domain nonsensical options.
-- **Written Questions**: Four distinct prompts are generated per concept:
-  1. *Define*: "In your own words, what is {concept}?"
-  2. *Compare*: "How is {concept} different from {related_concept}? Explain both."
-  3. *Explain*: "Explain this statement from your notes in your own words: '{source_sentence}'."
-  4. *Why*: "Why is {concept} useful or important in NLP systems?"
-
-### 3.5 Multi-Criteria Answer Grading & Copy Detection
-Evaluating free-form answers using unconstrained cosine similarity leads to high false-positive rates for superficial responses. StudyMate introduces a 4-stage grading pipeline:
-1. **Reference Selection**: Student answers are compared against the top 3 definition sentences retrieved from their own notes, selecting the highest-matching reference.
-2. **Minimum Substance Gate**: Answers with fewer than 4 non-stopword tokens are capped below the passing threshold ($< 6.0/10$).
-3. **Key-Term Coverage Verification**: The answer must contain key content lemmas present in the reference sentence; otherwise, the score is capped at $5.0/10$.
-4. **Anti-Copy Detection**: If lexical overlap between the student's submission and the source notes exceeds $90\%$, the score is capped below passing with the diagnostic message: *"Put it in your own words."*
+### 2.4 Semantic Textual Similarity (STS) & Scoring Calibration
+Evaluating free-form answers using unconstrained cosine similarity introduces severe grading inflation because dense embedding models reward topical keywords regardless of grammatical assertion. Objective grading requires multi-tiered constraints: brevity gating, key-term coverage verification, and verbatim lexical overlap capping.
 
 ---
 
-## 4. Empirical Evaluation & Experimental Results
+## 3. System Design & Agentic Architecture
 
-The evaluation harness (`backend/eval/run_eval.py`) was executed against `sample_notes.pdf` (2,698 characters, covering fundamental NLP concepts).
+### 3.1 Ingestion & Document Processing Pipeline
+When a student uploads lecture notes (PDF), StudyMate processes the document through an automated pipeline:
+1. **Stream Parsing**: `pypdf` extracts raw character text streams, standardizing whitespace and line breaks.
+2. **Sentence Segmentation**: Text is segmented using regex lookbehind patterns (`(?<=[.!?])\s+`).
+3. **Sliding Window Chunking**: Text is organized into 600-character windows with a 1-sentence overlap, preserving semantic context across chunk boundaries.
+4. **Dual Indexing**: Chunks are converted into 384-dimensional dense vectors (`all-MiniLM-L6-v2`) and sparse TF-IDF matrices, stored in SQLite.
 
-### 4.1 Retrieval Quality Benchmark
-Evaluated across 22 hand-crafted queries (14 verbatim phrasing, 8 paraphrase stress queries) over 6 indexed document chunks:
+### 3.2 Concept Extraction & Heuristic Filtering
+KeyBERT (MiniLM) extracts candidate keyphrases with an n-gram range of (1, 2). To eliminate noisy fragments, StudyMate applies three rule-based filters:
+- **Stop-Word Edge Filtering**: Discards phrases starting or ending with function words.
+- **POS Tag Filtering**: Rejects pure verbs and generic prefixes like "various".
+- **Grounding Support Rule**: Discards concepts lacking at least 2 complete supporting sentences in the document.
 
-| Retrieval Method | Original Hit@1 | Original Hit@3 | Original MRR | Paraphrase Hit@1 | Paraphrase Hit@3 | Paraphrase MRR |
+### 3.3 The Agentic Reasoning Loop (Perceive $\rightarrow$ Reason $\rightarrow$ Act $\rightarrow$ Audit)
+The agent service executes an autonomous pedagogical decision cycle:
+- **Perceive**: Computes current concept mastery using an Exponential Moving Average (EMA) over past test scores:
+  $$\text{Mastery}_{\text{new}} = 0.7 \cdot \text{Mastery}_{\text{old}} + 0.3 \cdot \text{Score}_{\text{current}}$$
+- **Reason**: Examines the prerequisite DAG. If a student demonstrates weak mastery (<60%) on an advanced concept whose prerequisite is also weak, the agent automatically intervenes and redirects learning to the foundation topic.
+- **Act**: Dispatches appropriate pedagogical tools: topic briefing, 5-question MCQ generation, or written synthesis testing.
+- **Audit**: Every decision and its rationale is permanently written to the `AgentActionLog` database table, providing examiners with a transparent audit trail.
+
+---
+
+## 4. Question Synthesis, Grading & Implementation
+
+### 4.1 Hybrid RAG Retrieval Engine
+Retrieval for explanations and grading references fuses dense and sparse similarities:
+$$\text{Score}_{\text{hybrid}} = 0.5 \cdot \text{Norm}(\text{Cosine}(Q, C)) + 0.5 \cdot \text{Norm}(\text{TFIDF}(Q, C))$$
+The top $k=3$ passages are retrieved and presented in the UI with transparency match scores.
+
+### 4.2 Question Generation Archetypes
+- **Cloze Multiple-Choice Questions**: Replaces the target concept with a blank (`_____`) in defining sentences. Distractors are drawn from related topics within the same notes. A session history buffer prevents question repeats across tests.
+- **Written Synthesis Questions**: Formulates four cognitive questions per topic: (1) Define in own words, (2) Compare two related concepts, (3) Explain a specific statement from the notes, and (4) Explain why the concept is important in NLP systems.
+
+### 4.3 Multi-Stage Answer Grading & Copy Detection
+To ensure objective evaluation without human graders, written submissions pass through a 4-stage pipeline:
+1. **Reference Matching**: Compares the submission against the top-3 defining sentences in the notes using MiniLM cosine similarity.
+2. **Substance Threshold Gate**: Answers with fewer than 4 non-stopword tokens are capped at 4.5/10.
+3. **Key-Term Coverage Check**: Requires the presence of the reference sentence's key technical lemmas. Generic or vague answers without core terms are capped at 5.0/10.
+4. **Anti-Copy Plagiarism Penalty**: Submissions with >90% lexical overlap with the source notes are penalized below passing (<5.0/10) with the feedback: *"Put it in your own words."*
+
+### 4.4 Technical Implementation & Security
+The system utilizes FastAPI (Python 3.10), SQLite, PyTorch, SentenceTransformers, and React 18 with Vite. Security features include salted PBKDF2-HMAC-SHA256 password hashing (200,000 iterations), cryptographically signed JWT sessions (7-day validity), and multi-tenant student data isolation. The compiled React frontend (`frontend/dist`) is served directly by FastAPI from port 8000 in a unified single-server deployment.
+
+---
+
+## 5. Empirical Evaluation & Benchmark Results
+
+### 5.1 Evaluation Setup & Benchmark Corpus
+The evaluation harness (`backend/eval/run_eval.py`) was benchmarked against `sample_notes.pdf` (2,698 characters, covering Tokenization, Stemming, Lemmatization, Word Embeddings, Attention Mechanism, Transformers, Semantic Similarity).
+
+### 5.2 Retrieval Quality Benchmark (Hit@k & MRR)
+Evaluated on 22 hand-crafted queries (14 verbatim phrasing, 8 paraphrase stress queries) over 6 indexed document chunks:
+
+| Retrieval Method | Orig Hit@1 | Orig Hit@3 | Orig MRR | Para Hit@1 | Para Hit@3 | Para MRR |
 |---|---|---|---|---|---|---|
 | **Dense Embeddings (MiniLM)** | 79% | 93% | 0.88 | **62%** | **100%** | **0.79** |
 | **Sparse TF-IDF** | **93%** | **100%** | **0.96** | 38% | 62% | 0.56 |
 | **Hybrid (StudyMate)** | **93%** | **100%** | **0.96** | 50% | **100%** | 0.69 |
 | Random Baseline | 21% | 64% | — | 23% | 69% | — |
 
-> **Key Finding**: While TF-IDF achieves superior Hit@1 on verbatim queries (93%), it degrades substantially under semantic paraphrasing (38% Hit@1). Hybrid fusion guarantees **100% Hit@3 across both test regimes**, ensuring relevant context is always retrieved for downstream generation.
+*Analysis:* While TF-IDF achieves superior Hit@1 on verbatim queries (93%), it degrades substantially under semantic paraphrasing (38% Hit@1). Hybrid retrieval achieves **100% Hit@3 across both test regimes**.
 
-### 4.2 Question Generation Quality
-A student completes tests sequentially across all extracted topics. The agent's history tracking was benchmarked against an unconstrained generator:
+### 5.3 Question Generation Quality Benchmark
 
 | Metric | Stateless Generator | History-Aware (StudyMate) |
 |---|---|---|
 | Total Questions Generated | 35 | 34 |
 | Well-Formed & Syntactically Unique | 94% (33/35) | **100% (34/34)** |
 | Correct Answer Leaked in Prompt | 0% (0/35) | **0% (0/34)** |
-| Distractor Repeated in Prompt | 0% (0/35) | **0% (0/34)** |
-| Cross-Test Question Repeats | 2 | **0** |
+| Repeated Questions Across Sessions | 2 | **0** |
 | Topics with Complete 5-Question Test | 7/7 | 6/7 (topped up with review) |
 
-### 4.3 Written Answer Grading Calibration
-Tested across 32 crafted answers categorized into 5 distinct behavioral archetypes:
+### 5.4 Written Answer Grading Calibration
 
-| Answer Category | Sample Size | Mean Semantic Similarity | Key-Term Coverage | Mean Score (0–10) | Pass Rate ($\ge 6.0$) |
+| Answer Category | Sample Size | Mean Similarity | Key-Term Coverage | Mean Score | Pass Rate ($\ge 6.0$) |
 |---|---|---|---|---|---|
 | **Substantive Correct Answers** | 7 | 0.95 | 0.63 | **10.00** | **7 / 7 (100%)** |
 | **Partial / Very Brief Answers** | 7 | 0.70 | 0.07 | 4.46 | **0 / 7 (0%)** |
@@ -150,49 +147,30 @@ Tested across 32 crafted answers categorized into 5 distinct behavioral archetyp
 | **Wrong Topic Answers** | 7 | 0.35 | 0.09 | 0.07 | **0 / 7 (0%)** |
 | **Irrelevant / Off-Topic Answers** | 7 | 0.03 | 0.00 | 0.00 | **0 / 7 (0%)** |
 
-> **Critical Analysis**: Before calibration, vague verbose answers scored an average of 7.55/10 (falsely passing). The key-term coverage rule correctly capped 100% of these responses to 5.0/10, completely eliminating false passes on the test set.
-
-### 4.4 Agent Decision Logic Verification
-The autonomous decision loop was evaluated across 5 formal student states:
-1. *New Student Initial Condition*: Directs student to foundation prerequisite topic $\rightarrow$ **PASS**
-2. *Strong Prerequisite Condition*: Teaches weak concept directly $\rightarrow$ **PASS**
-3. *Weak Prerequisite Condition*: Intervenes and directs to prerequisite first $\rightarrow$ **PASS**
-4. *Full Mastery Reached*: Advances student to next curriculum tier $\rightarrow$ **PASS**
-5. *Mastery Dynamics*: Exponential score updates correctly on pass/fail $\rightarrow$ **PASS**
+*Analysis:* Before calibration, vague verbose answers scored 7.55/10 (falsely passing). The key-term coverage rule correctly capped 100% of these responses to 5.0/10, completely eliminating false passes on the benchmark set. All 5 formal agent state transition tests passed (**100% pass rate**).
 
 ---
 
-## 5. Security & Multi-Tenant Architecture
+## 6. Discussion, Conclusion & References
 
-StudyMate is engineered for multi-user isolation:
-- **Cryptographic Storage**: Passwords hashed using PBKDF2-HMAC-SHA256 with a unique 16-byte random salt and 200,000 iterations.
-- **Session Authentication**: Cryptographically signed JSON Web Tokens (JWT) with 7-day expiration.
-- **Data Isolation**: All database queries enforce student-to-user ownership filters. Unauthorized access attempts yield HTTP 404 responses to prevent profile existence probing.
+### 6.1 Limitations & Error Analysis
+1. **Topical vs. Factual Similarity**: Dense embeddings reward domain relatedness rather than factual assertion. A verbose answer scored 0.75 raw cosine similarity, highlighting that vector similarity must be constrained by key-term verification rules in automated grading.
+2. **Heuristic Topic Filtering**: Concept extraction relies on defined sentence syntax (*"X is a..."*); unstructured slides with dense formulas or code yield fewer concepts.
+3. **Prerequisite Graph Linearity**: In offline mode without an external LLM, prerequisite DAGs follow linear document order. Non-linear dependencies require manual ontology seeding or LLM graph synthesis.
 
----
+### 6.2 Future Work
+- **Local LLM Integration**: Connecting quantised open-weight models (Llama 3.2 3B via Ollama) for multi-turn conversational viva examinations.
+- **Multimodal OCR Ingestion**: Incorporating vision transformers (TrOCR) to parse physical handwritten notes and mathematical formulas.
+- **Spaced Repetition Scheduling**: Implementing the SuperMemo SM-2 algorithm to schedule retention reviews dynamically.
 
-## 6. Limitations & Future Work
+### 6.3 Concluding Remarks
+StudyMate demonstrates that an effective educational AI tool must transcend reactive conversational search. By combining persistent student mastery modeling, prerequisite graph reasoning, hybrid vector retrieval, and multi-criteria answer validation, the platform transforms static lecture notes into an interactive, rigorous, and personalized learning environment.
 
-### 6.1 Honest Limitations
-1. **Rule-Based Concept Filtering**: The topic extraction module relies on lexical heuristics. Non-standard textbooks with dense mathematical notations or non-traditional headings may yield fewer topics.
-2. **Calibration Sample Size**: Thresholds for key-term coverage and length gating were optimized on a benchmark set of 32 answers; testing across diverse academic disciplines is recommended.
-3. **Prerequisite Inference**: Without a connected external LLM or curriculum ontology, DAG relationships follow linear document structure.
+### 6.4 Academic References
+- Reimers, N., & Gurevych, I. (2019). *Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks*. EMNLP 2019.
+- Grootendorst, M. (2020). *KeyBERT: Minimal keyword extraction with BERT*. Zenodo.
+- Robertson, S., & Zaragoza, H. (2009). *The Probabilistic Relevance Framework: BM25 and Beyond*. Foundations and Trends in Information Retrieval, 3(4), 333-389.
+- Vaswani, A., et al. (2017). *Attention Is All You Need*. NeurIPS 2017.
+- Lewis, P., et al. (2020). *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*. NeurIPS 2020.
 
-### 6.2 Future Roadmap
-- Integration with local open-weight LLMs (Ollama / Llama 3) for deep multi-turn viva conversational examination.
-- OCR support for scanned physical handwritten notes.
-- Spaced repetition scheduling based on the SuperMemo SM-2 algorithm.
-
----
-
-## 7. Conclusion
-
-StudyMate demonstrates that an effective educational AI system must move beyond reactive chatbots to incorporate autonomous decision-making, prerequisite graph reasoning, and calibrated semantic grading. By combining hybrid RAG (100% Hit@3) with multi-criteria answer validation, the platform grounds learning entirely in the student's own verified materials while eliminating superficial passing grades.
-
----
-
-## References & Project Links
-- **Source Code Repository:** [https://github.com/SangamThakur07/studymate](https://github.com/SangamThakur07/studymate)
-- Reimers, N., & Gurevych, I. (2019). *Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks*. EMNLP.
-- Grootendorst, M. (2020). *KeyBERT: Minimal keyword extraction with BERT*.
-- Robertson, S., & Zaragoza, H. (2009). *The Probabilistic Relevance Framework: BM25 and Beyond*. Foundations and Trends in Information Retrieval.
+**Project Source Code:** [https://github.com/SangamThakur07/studymate](https://github.com/SangamThakur07/studymate)
