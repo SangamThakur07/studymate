@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 
 export default function Dashboard() {
   const { studentId } = useParams()
+  const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
   const [decision, setDecision] = useState(null)
   const [progress, setProgress] = useState(null)
@@ -149,7 +150,16 @@ export default function Dashboard() {
               Subject: <strong>{profile.subject}</strong> · Goal: <strong>{profile.goal_score}%</strong>
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="secondary"
+              style={{ padding: '0.35rem 0.8rem', fontSize: '0.82rem' }}
+              onClick={() => navigate('/new-session')}
+              title="Create a new study session for another subject"
+            >
+              + Study Another Topic
+            </button>
             <span className="badge badge-primary">AI Powered</span>
             <span className="badge badge-success">Online</span>
           </div>
