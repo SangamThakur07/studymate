@@ -1,0 +1,964 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R] /Count 10 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 2519 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 1 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(1. Introduction to Natural Language Processing) Tj
+0 -24 Td
+/F1 12 Tf
+(1.1 Overview and Computational Foundations) Tj
+0 -18 Td
+/F1 10 Tf
+(Natural Language Processing \(NLP\) is a subfield of artificial intelligence,) Tj
+0 -14 Td
+(computer science, and linguistics concerned with the interactions between) Tj
+0 -14 Td
+(computers and human natural language. The primary objective of NLP is to enable) Tj
+0 -14 Td
+(computational algorithms to analyze, understand, interpret, and generate human) Tj
+0 -14 Td
+(language in a valuable and contextually coherent manner.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(Processing human language is inherently challenging due to lexical ambiguity,) Tj
+0 -14 Td
+(syntactic variations, idioms, cultural context, and polysemy. While computers) Tj
+0 -14 Td
+(require deterministic, structured data, human language is unstructured, noisy, and) Tj
+0 -14 Td
+(constantly evolving.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(1.2 The Traditional NLP Pipeline) Tj
+0 -18 Td
+/F1 10 Tf
+(A standard natural language processing pipeline consists of sequential) Tj
+0 -14 Td
+(computational stages that transform raw text into actionable mathematical) Tj
+0 -14 Td
+(representations:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Raw Text Ingestion: Extracting unstructured character streams from plain text) Tj
+0 -14 Td
+(   files, documents, or speech transcripts.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Text Normalization: Converting diverse typographical forms into a uniform) Tj
+0 -14 Td
+(   canonical format through lowercasing, character expansion, and noise reduction.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Lexical Segmentation: Segmenting continuous text streams into sentences and) Tj
+0 -14 Td
+(   discrete token units.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Morphological Simplification: Reducing inflected words to their common base) Tj
+0 -14 Td
+(   forms using stemming or lemmatization.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Vector Representation: Mapping normalized textual units into numeric feature) Tj
+0 -14 Td
+(   vectors for machine learning algorithms.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(Modern language processing systems rely on both statistical frequency models and) Tj
+0 -14 Td
+(pre-trained deep neural representations to accomplish high-level semantic tasks) Tj
+0 -14 Td
+(such as machine translation, sentiment analysis, text summarization, and dialogue) Tj
+0 -14 Td
+(management.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2244 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 2 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(2. Text Normalization and Tokenization) Tj
+0 -24 Td
+/F1 12 Tf
+(2.1 Tokenization Principles) Tj
+0 -18 Td
+/F1 10 Tf
+(Tokenization is the foundational process of demarcating and segmenting a) Tj
+0 -14 Td
+(continuous stream of written text into discrete linguistic units called tokens. In) Tj
+0 -14 Td
+(alphanumeric writing systems, tokens typically correspond to individual words,) Tj
+0 -14 Td
+(punctuation marks, numbers, or subword morphemes.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(Sentence tokenization or sentence boundary detection segments paragraphs into) Tj
+0 -14 Td
+(individual sentences using punctuation delimiters such as periods, question marks,) Tj
+0 -14 Td
+(and exclamation marks. Word tokenization further segments individual sentences) Tj
+0 -14 Td
+(into lexical units.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(2.2 Tokenization Challenges) Tj
+0 -18 Td
+/F1 10 Tf
+(Naive whitespace tokenization fails on real-world text due to several recurring) Tj
+0 -14 Td
+(linguistic edge cases:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Contractions: Words such as 'don\\'t' or 'they\\'re' must be split meaningfully) Tj
+0 -14 Td
+(   into underlying lexical tokens \('do', 'n\\'t'\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Punctuation in Abbreviations: Acronyms and abbreviations like 'U.S.A.',) Tj
+0 -14 Td
+(   'e.g.', and 'Dr.' contain periods that must not trigger sentence boundary) Tj
+0 -14 Td
+(   splits.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Hyphenated Compounds: Words like 'state-of-the-art' or 'co-worker' require) Tj
+0 -14 Td
+(   consistent splitting strategies depending on downstream task goals.) Tj
+0 -14 Td
+0 -4 Td
+/F1 12 Tf
+(2.3 Subword Tokenization Algorithms) Tj
+0 -18 Td
+/F1 10 Tf
+(Modern transformer models employ subword tokenization algorithms to solve the out-) Tj
+0 -14 Td
+(of-vocabulary \(OOV\) problem. Common subword algorithms include Byte-Pair Encoding) Tj
+0 -14 Td
+(\(BPE\), WordPiece, and SentencePiece. Subword tokenization divides rare or compound) Tj
+0 -14 Td
+(words into frequent character n-grams, enabling models to represent unseen words) Tj
+0 -14 Td
+(through known morphemic sub-units.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 2337 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 3 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(3. Morphological Analysis: Stemming and Lemmatization) Tj
+0 -24 Td
+/F1 12 Tf
+(3.1 Morphological Reduction) Tj
+0 -18 Td
+/F1 10 Tf
+(Words in natural language frequently occur in multiple inflected, derived, and) Tj
+0 -14 Td
+(conjugated forms to express grammatical tense, plurality, voice, or aspect.) Tj
+0 -14 Td
+(Morphological normalization reduces these inflected surface forms to a single) Tj
+0 -14 Td
+(common base representation, reducing vocabulary sparsity in NLP models.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(3.2 Stemming Algorithms) Tj
+0 -18 Td
+/F1 10 Tf
+(Stemming is a rule-based heuristic process that strips known derivational and) Tj
+0 -14 Td
+(inflectional affixes \(prefixes and suffixes\) from words to produce a base stem.) Tj
+0 -14 Td
+(Stemmers operate without lexical knowledge of the language:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Porter Stemmer: The most famous rule-based suffix-stripping algorithm for) Tj
+0 -14 Td
+(   English, applying five sequential tiers of rewrite rules.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Snowball Stemmer: An enhanced, slightly more aggressive variant of the Porter) Tj
+0 -14 Td
+(   algorithm supporting multiple European languages.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Lancaster Stemmer: An aggressive, fast rule-based stemmer that frequently) Tj
+0 -14 Td
+(   causes over-stemming errors.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(A primary limitation of stemming is that the resulting stem is often not an) Tj
+0 -14 Td
+(authentic dictionary word. For instance, 'studies' and 'studying' are reduced to) Tj
+0 -14 Td
+(the non-word stem 'studi'.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(3.3 Lemmatization with Morphological Dictionaries) Tj
+0 -18 Td
+/F1 10 Tf
+(Lemmatization is the process of reducing an inflected word to its canonical) Tj
+0 -14 Td
+(grammatical base form, known as the lemma. Unlike stemming, lemmatization relies) Tj
+0 -14 Td
+(on a comprehensive morphological dictionary \(such as WordNet\) and considers the) Tj
+0 -14 Td
+(word\\'s part-of-speech \(POS\) tag. For example, 'better' is correctly mapped to its) Tj
+0 -14 Td
+(adjective lemma 'good', and 'meeting' is mapped to 'meet' \(verb\) or 'meeting') Tj
+0 -14 Td
+(\(noun\) based on syntactic context.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 2426 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 4 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(4. Stop Words Removal and Part-of-Speech Tagging) Tj
+0 -24 Td
+/F1 12 Tf
+(4.1 Stop Words Filtering) Tj
+0 -18 Td
+/F1 10 Tf
+(Stop words are high-frequency functional words in a language that carry minimal) Tj
+0 -14 Td
+(domain-specific semantic information. Common English stop words include) Tj
+0 -14 Td
+(prepositions, articles, auxiliary verbs, and pronouns such as 'the', 'is', 'at',) Tj
+0 -14 Td
+('which', and 'on'.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(In traditional information retrieval and text classification workflows, removing) Tj
+0 -14 Td
+(stop words dramatically reduces vocabulary dimensionality and prevents high-) Tj
+0 -14 Td
+(frequency grammatical words from skewing statistical document similarity) Tj
+0 -14 Td
+(calculations.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(However, in modern neural architectures and context-sensitive tasks \(such as) Tj
+0 -14 Td
+(sentiment analysis, question answering, and machine translation\), stop words are) Tj
+0 -14 Td
+(retained because they convey critical syntactic dependencies, negation, and clause) Tj
+0 -14 Td
+(structure.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(4.2 Part-of-Speech \(POS\) Tagging) Tj
+0 -18 Td
+/F1 10 Tf
+(Part-of-Speech tagging is the process of assigning a grammatical category label) Tj
+0 -14 Td
+(\(such as noun, verb, adjective, adverb, or pronoun\) to each token in a sentence) Tj
+0 -14 Td
+(based on its morphological definition and syntactic context.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(POS tagging disambiguates homonyms where a single surface word functions as) Tj
+0 -14 Td
+(different parts of speech across different sentences:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Verb context: 'They plan to book a flight to London.' \('book' tagged as VB\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Noun context: 'She read an engaging book on algorithms.' \('book' tagged as) Tj
+0 -14 Td
+(   NN\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(Standard POS tagging tagsets include the Penn Treebank \(consisting of 36 POS tags) Tj
+0 -14 Td
+(and 12 punctuation tags\) and the Universal Dependencies tagset \(consisting of 17) Tj
+0 -14 Td
+(cross-linguistic core tags\). Machine learning models like Hidden Markov Models) Tj
+0 -14 Td
+(\(HMM\), Conditional Random Fields \(CRF\), and BiLSTM networks are commonly used to) Tj
+0 -14 Td
+(predict sequence POS tags.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 12 0 R >>
+endobj
+12 0 obj
+<< /Length 2470 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 5 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(5. Statistical Language Modeling and TF-IDF) Tj
+0 -24 Td
+/F1 12 Tf
+(5.1 The Bag-of-Words Model) Tj
+0 -18 Td
+/F1 10 Tf
+(The Bag-of-Words \(BoW\) model represents text by measuring word occurrences while) Tj
+0 -14 Td
+(discarding grammar, word order, and syntax. A text document is converted into a) Tj
+0 -14 Td
+(numeric sparse vector where each dimension corresponds to a specific vocabulary) Tj
+0 -14 Td
+(term and the scalar value denotes term frequency.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(While intuitive and effective for basic document categorization, the Bag-of-Words) Tj
+0 -14 Td
+(model suffers from high vector dimensionality, extreme sparsity, and complete) Tj
+0 -14 Td
+(blindness to semantic synonymy.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(5.2 TF-IDF Formulation) Tj
+0 -18 Td
+/F1 10 Tf
+(Term Frequency-Inverse Document Frequency \(TF-IDF\) is a statistical weighting) Tj
+0 -14 Td
+(metric that evaluates how important a word is to a document within a larger) Tj
+0 -14 Td
+(collection or corpus of documents.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(Term Frequency \(TF\) measures the frequency of word t within document d: TF\(t, d\) =) Tj
+0 -14 Td
+(count\(t, d\) / total_words\(d\). Common variations apply logarithmic smoothing: TF\(t,) Tj
+0 -14 Td
+(d\) = 1 + log\(count\(t, d\)\).) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(Inverse Document Frequency \(IDF\) penalizes words that appear across virtually all) Tj
+0 -14 Td
+(documents in the corpus, assigning higher importance to rare, discriminative) Tj
+0 -14 Td
+(terms:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  IDF\(t, D\) = log\( \(1 + Total_Documents\) / \(1 + Documents_Containing\(t\)\) \) + 1) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(The compound TF-IDF score is the product: TF-IDF\(t, d, D\) = TF\(t, d\) * IDF\(t, D\).) Tj
+0 -14 Td
+(Words with high TF-IDF scores have high frequency in a specific document but low) Tj
+0 -14 Td
+(frequency across the wider corpus, making them effective keywords for information) Tj
+0 -14 Td
+(retrieval and document indexing.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(5.3 Cosine Similarity for Lexical Retrieval) Tj
+0 -18 Td
+/F1 10 Tf
+(Document similarity in TF-IDF space is computed using the cosine of the angle) Tj
+0 -14 Td
+(between two sparse vectors: Cosine\(A, B\) = \(A . B\) / \(||A|| * ||B||\). When) Tj
+0 -14 Td
+(normalized, this yields a score between 0.0 and 1.0.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 14 0 R >>
+endobj
+14 0 obj
+<< /Length 2513 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 6 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(6. Distributed Word Representations and Dense Embeddings) Tj
+0 -24 Td
+/F1 12 Tf
+(6.1 The Distributed Hypothesis) Tj
+0 -18 Td
+/F1 10 Tf
+(Statistical one-hot vectors and TF-IDF matrices treat words as completely isolated) Tj
+0 -14 Td
+(discrete symbols. The distance between 'cat' and 'feline' is identical to the) Tj
+0 -14 Td
+(distance between 'cat' and 'refrigerator'. The distributional hypothesis \(Harris,) Tj
+0 -14 Td
+(1954; Firth, 1957\) states: 'You shall know a word by the company it keeps.' Words) Tj
+0 -14 Td
+(that appear in similar linguistic contexts share semantic meaning.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(6.2 Word2Vec Architectures) Tj
+0 -18 Td
+/F1 10 Tf
+(Word2Vec \(Mikolov et al., 2013\) introduced predictive neural architectures to) Tj
+0 -14 Td
+(learn dense, continuous, low-dimensional vector representations of words from vast) Tj
+0 -14 Td
+(unannotated text corpora:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Continuous Bag-of-Words \(CBOW\): Predicts the probability of a target word) Tj
+0 -14 Td
+(   given its surrounding context words within a sliding window.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Continuous Skip-gram: Predicts the conditional probability of context words) Tj
+0 -14 Td
+(   given a single target word. Skip-gram performs exceptionally well on rare words.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(Word2Vec utilizes Negative Sampling \(SGNS\) or Hierarchical Softmax to make) Tj
+0 -14 Td
+(training computationally scalable over billions of tokens.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(6.3 Semantic Geometry and Vector Arithmetic) Tj
+0 -18 Td
+/F1 10 Tf
+(Dense word embeddings exhibit remarkable linear compositional properties.) Tj
+0 -14 Td
+(Geometric relationships in vector space reflect semantic relationships:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Vector\('King'\) - Vector\('Man'\) + Vector\('Woman'\) ~ Vector\('Queen'\)) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Vector\('Paris'\) - Vector\('France'\) + Vector\('Italy'\) ~ Vector\('Rome'\)) Tj
+0 -14 Td
+0 -4 Td
+/F1 12 Tf
+(6.4 Global Vectors \(GloVe\) and FastText) Tj
+0 -18 Td
+/F1 10 Tf
+(GloVe \(Pennington et al., 2014\) combines global matrix factorization with local) Tj
+0 -14 Td
+(context window statistics. FastText \(Bojanowski et al., 2017\) represents words as) Tj
+0 -14 Td
+(bags of character n-grams, enabling robust embeddings for out-of-vocabulary terms) Tj
+0 -14 Td
+(and inflected languages.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 16 0 R >>
+endobj
+16 0 obj
+<< /Length 2510 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 7 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(7. Sequence Modeling: Recurrent Neural Networks) Tj
+0 -24 Td
+/F1 12 Tf
+(7.1 Sequential Dependencies in Language) Tj
+0 -18 Td
+/F1 10 Tf
+(Natural language is inherently sequential: the interpretation of a word depends) Tj
+0 -14 Td
+(heavily on preceding and subsequent tokens. Feedforward neural networks treat each) Tj
+0 -14 Td
+(input independently and require fixed-length inputs, making them ill-suited for) Tj
+0 -14 Td
+(variable-length sequential sentences.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(7.2 Vanilla Recurrent Neural Networks \(RNN\)) Tj
+0 -18 Td
+/F1 10 Tf
+(Recurrent Neural Networks \(RNNs\) process sequences token-by-token while) Tj
+0 -14 Td
+(maintaining an internal hidden state vector h_t that acts as a working memory of) Tj
+0 -14 Td
+(past context: h_t = tanh\(W_hh * h_{t-1} + W_xh * x_t + b_h\).) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(While mathematically elegant, standard RNNs suffer from the vanishing and) Tj
+0 -14 Td
+(exploding gradient problem when trained via Backpropagation Through Time \(BPTT\).) Tj
+0 -14 Td
+(Gradients exponentially decay or explode as they propagate across multiple) Tj
+0 -14 Td
+(recurrent steps, preventing vanilla RNNs from capturing long-range dependencies) Tj
+0 -14 Td
+(beyond 10-15 tokens.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(7.3 Long Short-Term Memory \(LSTM\)) Tj
+0 -18 Td
+/F1 10 Tf
+(The Long Short-Term Memory network \(Hochreiter & Schmidhuber, 1997\) overcomes) Tj
+0 -14 Td
+(vanishing gradients by introducing an explicit cell state vector C_t regulated by) Tj
+0 -14 Td
+(three continuous gating mechanisms:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Forget Gate: Decides what proportion of past cell memory to discard: f_t =) Tj
+0 -14 Td
+(   sigma\(W_f * [h_{t-1}, x_t] + b_f\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Input Gate: Decides which candidate values to store in cell state: i_t =) Tj
+0 -14 Td
+(   sigma\(W_i * [h_{t-1}, x_t] + b_i\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Output Gate: Determines the updated hidden output based on filtered cell) Tj
+0 -14 Td
+(   memory: o_t = sigma\(W_o * [h_{t-1}, x_t] + b_o\).) Tj
+0 -14 Td
+0 -4 Td
+/F1 12 Tf
+(7.4 Gated Recurrent Units \(GRU\)) Tj
+0 -18 Td
+/F1 10 Tf
+(The Gated Recurrent Unit \(Cho et al., 2014\) simplifies the LSTM by merging the) Tj
+0 -14 Td
+(cell state and hidden state, using only reset and update gates for faster training) Tj
+0 -14 Td
+(with comparable performance.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 18 0 R >>
+endobj
+18 0 obj
+<< /Length 2564 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 8 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(8. The Attention Mechanism and Context Alignment) Tj
+0 -24 Td
+/F1 12 Tf
+(8.1 The Information Bottleneck in Encoder-Decoder Models) Tj
+0 -18 Td
+/F1 10 Tf
+(Traditional sequence-to-sequence \(Seq2Seq\) architectures use an RNN encoder to) Tj
+0 -14 Td
+(compress an entire input sequence into a single fixed-length context vector before) Tj
+0 -14 Td
+(decoding. This creates a severe information bottleneck: as input sentences grow) Tj
+0 -14 Td
+(longer \(exceeding 20-30 tokens\), the fixed vector cannot retain all salient) Tj
+0 -14 Td
+(details, causing translation accuracy to deteriorate sharply.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(8.2 Bahdanau Additive Attention) Tj
+0 -18 Td
+/F1 10 Tf
+(The attention mechanism \(Bahdanau et al., 2014\) eliminated the fixed vector) Tj
+0 -14 Td
+(bottleneck by allowing the decoder to dynamically attend to all encoder hidden) Tj
+0 -14 Td
+(states at every decoding step.) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(Instead of relying on a single vector, the decoder computes alignment energy) Tj
+0 -14 Td
+(scores between the current decoder state and all encoder hidden states, normalizes) Tj
+0 -14 Td
+(them via softmax into attention weights, and computes a dynamic context vector as) Tj
+0 -14 Td
+(a weighted sum of encoder representations.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(8.3 Scaled Dot-Product Attention) Tj
+0 -18 Td
+/F1 10 Tf
+(Vaswani et al. \(2017\) formalized attention as a mapping from a Query vector and a) Tj
+0 -14 Td
+(set of Key-Value vector pairs to an output vector. Scaled Dot-Product Attention is) Tj
+0 -14 Td
+(formulated as:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Attention\(Q, K, V\) = Softmax\( \(Q * K^T\) / sqrt\(d_k\) \) * V) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(Where Q represents Queries \(dimension d_k\), K represents Keys, and V represents) Tj
+0 -14 Td
+(Values. The scaling factor 1 / sqrt\(d_k\) prevents the dot products from growing) Tj
+0 -14 Td
+(excessively large for large dimensions, which would otherwise push the softmax) Tj
+0 -14 Td
+(function into regions with vanishingly small gradients.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(8.4 Self-Attention) Tj
+0 -18 Td
+/F1 10 Tf
+(Self-attention \(or intra-attention\) relates different positions of a single) Tj
+0 -14 Td
+(sequence to compute a contextual representation of that same sequence. In self-) Tj
+0 -14 Td
+(attention, Queries, Keys, and Values are all linear projections of the same input) Tj
+0 -14 Td
+(sequence representations.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 20 0 R >>
+endobj
+20 0 obj
+<< /Length 2405 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 9 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(9. The Transformer Architecture) Tj
+0 -24 Td
+/F1 12 Tf
+(9.1 Discarding Recurrence for Parallelism) Tj
+0 -18 Td
+/F1 10 Tf
+(Introduced in the seminal paper 'Attention Is All You Need' \(Vaswani et al.,) Tj
+0 -14 Td
+(2017\), the Transformer architecture completely dispenses with recurrence and) Tj
+0 -14 Td
+(convolutions. By relying entirely on self-attention mechanisms, Transformers) Tj
+0 -14 Td
+(process all sequence tokens simultaneously in parallel, dramatically accelerating) Tj
+0 -14 Td
+(training on modern GPU hardware.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(9.2 Multi-Head Attention) Tj
+0 -18 Td
+/F1 10 Tf
+(Instead of performing a single attention function, Multi-Head Attention linearly) Tj
+0 -14 Td
+(projects Queries, Keys, and Values h times with different learned parameter) Tj
+0 -14 Td
+(matrices:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  MultiHead\(Q, K, V\) = Concat\(head_1, ..., head_h\) * W_O) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Where head_i = Attention\(Q * W_i^Q, K * W_i^K, V * W_i^V\)) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(Multi-head attention allows the model to jointly attend to information from) Tj
+0 -14 Td
+(different representation subspaces at different positions. One head can track) Tj
+0 -14 Td
+(grammatical subject-verb agreement, while another tracks coreference resolution) Tj
+0 -14 Td
+(across clauses.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(9.3 Positional Encoding) Tj
+0 -18 Td
+/F1 10 Tf
+(Because the self-attention mechanism contains no recurrence, it is permutation-) Tj
+0 -14 Td
+(invariant: shuffling words produces identical self-attention scores. To inject) Tj
+0 -14 Td
+(token order, Transformers add Positional Encodings to input embeddings using) Tj
+0 -14 Td
+(sinusoidal functions of varying frequencies:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  PE\(pos, 2i\) = sin\( pos / \(10000^\(2i / d_model\)\) \)) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  PE\(pos, 2i+1\) = cos\( pos / \(10000^\(2i / d_model\)\) \)) Tj
+0 -14 Td
+0 -4 Td
+/F1 12 Tf
+(9.4 Layer Normalization and Residual Connections) Tj
+0 -18 Td
+/F1 10 Tf
+(Each sub-layer in the Transformer encoder and decoder incorporates a Residual) Tj
+0 -14 Td
+(Connection followed by Layer Normalization: Output = LayerNorm\(x + Sublayer\(x\)\),) Tj
+0 -14 Td
+(enabling stable gradient flow across deep networks.) Tj
+0 -14 Td
+0 -8 Td
+ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 23 0 R >> >> /Contents 22 0 R >>
+endobj
+22 0 obj
+<< /Length 2726 >>
+stream
+BT
+/F1 9 Tf
+50 750 Td
+(CSE472: Natural Language Processing -- Study Notes) Tj
+440 0 Td (Page 10 of 10) Tj
+-440 -35 Td
+/F1 16 Tf
+(10. Pre-trained Language Models and Evaluation) Tj
+0 -24 Td
+/F1 12 Tf
+(10.1 The Transfer Learning Paradigm in NLP) Tj
+0 -18 Td
+/F1 10 Tf
+(Contemporary natural language processing relies on the pre-train and fine-tune) Tj
+0 -14 Td
+(paradigm: models are first self-supervised on hundreds of billions of unlabelled) Tj
+0 -14 Td
+(tokens before being fine-tuned on task-specific labelled datasets.) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(10.2 Encoder-Only vs. Decoder-Only Architectures) Tj
+0 -18 Td
+/F1 10 Tf
+(Transformer models generally adopt one of three architectural configurations:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Encoder-Only \(BERT, RoBERTa\): Uses bidirectional self-attention trained on) Tj
+0 -14 Td
+(   Masked Language Modeling \(MLM\). Ideal for classification, extractive QA, and) Tj
+0 -14 Td
+(   semantic sentence embeddings.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Decoder-Only \(GPT series, LLaMA\): Uses causal autoregressive masking where) Tj
+0 -14 Td
+(   tokens attend only to preceding positions. Ideal for open-ended text generation) Tj
+0 -14 Td
+(   and conversational reasoning.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Encoder-Decoder \(T5, BART\): Combines bidirectional encoding with) Tj
+0 -14 Td
+(   autoregressive decoding. Ideal for machine translation and abstractive text) Tj
+0 -14 Td
+(   summarization.) Tj
+0 -14 Td
+0 -4 Td
+/F1 12 Tf
+(10.3 Sentence Transformers and Dense Retrieval) Tj
+0 -18 Td
+/F1 10 Tf
+(Sentence-BERT \(Reimers & Gurevych, 2019\) modifies pre-trained BERT networks using) Tj
+0 -14 Td
+(Siamese and triplet network structures to derive semantically meaningful sentence) Tj
+0 -14 Td
+(embeddings. Models like all-MiniLM-L6-v2 map sentences into 384-dimensional dense) Tj
+0 -14 Td
+(vectors where cosine similarity directly measures semantic relatedness, forming) Tj
+0 -14 Td
+(the bedrock of modern Retrieval-Augmented Generation \(RAG\).) Tj
+0 -14 Td
+0 -8 Td
+/F1 12 Tf
+(10.4 NLP Evaluation Metrics) Tj
+0 -18 Td
+/F1 10 Tf
+(Standard evaluation metrics for NLP tasks include:) Tj
+0 -14 Td
+0 -8 Td
+/F1 10 Tf
+(-  Perplexity \(PPL\): Exponential of cross-entropy loss measuring language model) Tj
+0 -14 Td
+(   uncertainty.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  BLEU Score: Modified n-gram precision measuring overlap against reference) Tj
+0 -14 Td
+(   human translations.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  ROUGE Metric: N-gram recall measuring content preservation in text) Tj
+0 -14 Td
+(   summarization.) Tj
+0 -14 Td
+0 -4 Td
+/F1 10 Tf
+(-  Semantic Textual Similarity \(STS\): Pearson/Spearman correlation against human) Tj
+0 -14 Td
+(   similarity ratings.) Tj
+0 -14 Td
+0 -4 Td
+ET
+endstream
+endobj
+23 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 24
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000176 00000 n 
+0000000303 00000 n 
+0000002874 00000 n 
+0000003001 00000 n 
+0000005297 00000 n 
+0000005424 00000 n 
+0000007813 00000 n 
+0000007941 00000 n 
+0000010420 00000 n 
+0000010549 00000 n 
+0000013072 00000 n 
+0000013201 00000 n 
+0000015767 00000 n 
+0000015896 00000 n 
+0000018459 00000 n 
+0000018588 00000 n 
+0000021205 00000 n 
+0000021334 00000 n 
+0000023792 00000 n 
+0000023921 00000 n 
+0000026700 00000 n 
+trailer
+<< /Size 24 /Root 1 0 R >>
+startxref
+26771
+%%EOF
