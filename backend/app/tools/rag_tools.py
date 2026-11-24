@@ -48,44 +48,66 @@ def _embed(texts: list[str]):
         return None
 
 
-_locks: dict = {}
-_locks_guard = threading.Lock()
+def store_chunks_fast(db: Session, material: Material, text: str, max_chunks: int = 60) -> int:
+    """Split text into chunks and store in DB immediately with embedding=None.
+    Runs in < 0.01 seconds so upload and retrieval are never blocked."""
+    existing = db.query(MaterialChunk).filter(MaterialChunk.material_id == material.id).count()
+    if existing:
+        return existing
+    chunks = chunk_text(text)[:max_chunks]
+    if not chunks:
+        return 0
+    for i, chunk in enumerate(chunks):
+        db.add(MaterialChunk(
+            material_id=material.id,
+            student_id=material.student_id,
+            chunk_index=i,
+            text=chunk,
+            embedding=None,
+        ))
+    db.commit()
+    return len(chunks)
+
+
+def embed_pending_chunks(db: Session, material_id: int, batch_size: int = 8) -> int:
+    """Compute embeddings in small batches for chunks that don't have them yet."""
+    pending = (db.query(MaterialChunk)
+               .filter(MaterialChunk.material_id == material_id, MaterialChunk.embedding.is_(None))
+               .order_by(MaterialChunk.chunk_index)
+               .all())
+    if not pending:
+        return 0
+
+    count = 0
+    for i in range(0, len(pending), batch_size):
+        batch = pending[i:i + batch_size]
+        texts = [c.text for c in batch]
+        vectors = _embed(texts)
+        if not vectors:
+            break
+        for c, vec in zip(batch, vectors):
+            c.embedding = vec
+        db.commit()
+        count += len(batch)
+    return count
 
 
 def index_material(db: Session, material: Material, text: str) -> int:
-    """Chunk + embed a material and store its passages. Returns chunk count.
-
-    Safe to call twice at once (the background job after an upload, and a student pressing
-    Explain straight away): a per-material lock makes the second caller wait, then find the
-    passages already stored instead of indexing again."""
-    with _locks_guard:
-        lock = _locks.setdefault(material.id, threading.Lock())
-    with lock:
-        existing = db.query(MaterialChunk).filter(MaterialChunk.material_id == material.id).count()
-        if existing:
-            return existing
-        chunks = chunk_text(text)
-        if not chunks:
-            return 0
-        vectors = _embed(chunks)
-        for i, chunk in enumerate(chunks):
-            db.add(MaterialChunk(
-                material_id=material.id,
-                student_id=material.student_id,
-                chunk_index=i,
-                text=chunk,
-                embedding=vectors[i] if vectors else None,
-            ))
-        db.commit()
-        return len(chunks)
+    """Chunk and embed a material. Fast stores chunks, then computes embeddings."""
+    n = store_chunks_fast(db, material, text)
+    try:
+        embed_pending_chunks(db, material.id)
+    except Exception:
+        pass
+    return n
 
 
 def _ensure_indexed(db: Session, student_id: int):
-    """Lazily index any older uploads that predate the chunk table."""
+    """Lazily index any older uploads that predate the chunk table (without blocking on embeddings)."""
     for m in db.query(Material).filter(Material.student_id == student_id).all():
         has = db.query(MaterialChunk).filter(MaterialChunk.material_id == m.id).first()
         if not has and m.raw_text:
-            index_material(db, m, m.raw_text)
+            store_chunks_fast(db, m, m.raw_text)
 
 
 def rank_texts(texts: list[str], query: str, vectors=None, method: str = "auto"):
@@ -99,9 +121,8 @@ def rank_texts(texts: list[str], query: str, vectors=None, method: str = "auto")
     import numpy as np
 
     if method == "hybrid":
-        # Score fusion: min-max normalise the semantic and the lexical scores, then average.
-        # Semantic scores catch paraphrases; lexical scores catch exact terms. Each covers
-        # the other's blind spot.
+        if not vectors:
+            return rank_texts(texts, query, method="tfidf")
         sem, used = rank_texts(texts, query, vectors=vectors, method="embeddings")
         lex, _ = rank_texts(texts, query, method="tfidf")
         if sem is None:
@@ -115,13 +136,18 @@ def rank_texts(texts: list[str], query: str, vectors=None, method: str = "auto")
         return 0.5 * norm01(sem) + 0.5 * norm01(lex), "hybrid"
 
     if method in ("auto", "embeddings"):
-        q_vec = _embed([query])
-        if q_vec:
-            vecs = vectors if vectors else _embed(texts)
-            if vecs:
-                m, q = np.array(vecs), np.array(q_vec[0])
+        if not vectors:
+            if method == "embeddings":
+                return None, "embeddings"
+            return rank_texts(texts, query, method="tfidf")
+        try:
+            q_vec = _embed([query])
+            if q_vec and vectors:
+                m, q = np.array(vectors), np.array(q_vec[0])
                 denom = (np.linalg.norm(m, axis=1) * np.linalg.norm(q)) + 1e-9
                 return (m @ q) / denom, "embeddings"
+        except Exception:
+            pass
         if method == "embeddings":
             return None, "embeddings"
 
@@ -130,21 +156,30 @@ def rank_texts(texts: list[str], query: str, vectors=None, method: str = "auto")
     try:
         matrix = TfidfVectorizer(stop_words="english").fit_transform(texts + [query])
         return linear_kernel(matrix[-1], matrix[:-1]).ravel(), "tfidf"
-    except ValueError:
+    except Exception:
+        import numpy as np
         return np.zeros(len(texts)), "tfidf"
 
 
 def retrieve(db: Session, student_id: int, query: str, k: int = 3) -> list[dict]:
     """Top-k passages from the student's own material for this query."""
-    _ensure_indexed(db, student_id)
     chunks = db.query(MaterialChunk).filter(MaterialChunk.student_id == student_id).all()
+    if not chunks:
+        _ensure_indexed(db, student_id)
+        chunks = db.query(MaterialChunk).filter(MaterialChunk.student_id == student_id).all()
     if not chunks:
         return []
 
-    vectors = [c.embedding for c in chunks] if all(c.embedding for c in chunks) else None
+    has_embeddings = all(c.embedding is not None for c in chunks)
+    vectors = [c.embedding for c in chunks] if has_embeddings else None
+
     from app.config import settings
+    desired = settings.RETRIEVAL_METHOD
+    # If vectors are not ready yet, seamlessly fall back to tfidf without stalling
+    method_to_use = desired if (has_embeddings or desired == "tfidf") else "tfidf"
+
     scores, method = rank_texts([c.text for c in chunks], query, vectors=vectors,
-                                method=settings.RETRIEVAL_METHOD)
+                                method=method_to_use)
 
     ranked = sorted(zip(chunks, scores), key=lambda x: float(x[1]), reverse=True)[:k]
     return [

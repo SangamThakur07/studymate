@@ -49,6 +49,9 @@ def extract_keywords(text: str, top_n: int = 10) -> list[str]:
     Falls back to TF-IDF if KeyBERT's embedding model is unavailable."""
     global _keybert_load_failed
 
+    # Limit text length to prevent CPU bottlenecks on long 10+ page documents
+    text = text[:10000]
+
     if _keybert_load_failed:
         return _tfidf_keywords_fallback(text, top_n)
 

@@ -159,13 +159,15 @@ class GeminiProvider(LLMProvider):
             headers={"Content-Type": "application/json"}
         )
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 candidates = data.get("candidates", [])
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
-                    return "".join(p.get("text", "") for p in parts)
-                return ""
+                    res = "".join(p.get("text", "") for p in parts).strip()
+                    if res:
+                        return res
+                return MockLLMProvider().complete(prompt, system, max_tokens)
         except Exception as exc:
             # Fallback gracefully to mock generator so the app never breaks during a live presentation
             return MockLLMProvider().complete(prompt, system, max_tokens)
@@ -197,23 +199,27 @@ class GroqProvider(LLMProvider):
             }
         )
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 return data["choices"][0]["message"]["content"]
         except Exception as exc:
-            return f"[Groq Error: {str(exc)}]"
+            return MockLLMProvider().complete(prompt, system, max_tokens)
 
 
 def get_llm_provider() -> LLMProvider:
     provider = settings.LLM_PROVIDER.lower()
-    if provider == "gemini":
-        return GeminiProvider()
-    if provider == "groq":
-        return GroqProvider()
-    if provider == "anthropic":
-        return AnthropicProvider()
-    if provider == "openai":
-        return OpenAIProvider()
+    try:
+        if provider == "gemini":
+            return GeminiProvider()
+        if provider == "groq":
+            return GroqProvider()
+        if provider == "anthropic":
+            return AnthropicProvider()
+        if provider == "openai":
+            return OpenAIProvider()
+    except Exception as exc:
+        print(f"[LLM] Could not initialize '{provider}' provider ({exc}). Falling back to mock tutor.")
+        return MockLLMProvider()
     return MockLLMProvider()
 
 

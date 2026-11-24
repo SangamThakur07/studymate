@@ -8,7 +8,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState(null)
   const [decision, setDecision] = useState(null)
   const [progress, setProgress] = useState(null)
-  const [error, setError] = useState(null)
+  const [pageError, setPageError] = useState(null)
+  const [actionError, setActionError] = useState(null)
 
   // upload state
   const [uploading, setUploading] = useState(false)
@@ -33,7 +34,7 @@ export default function Dashboard() {
       setDecision(d)
       setProgress(pr)
     } catch (err) {
-      setError(err.status === 404
+      setPageError(err.status === 404
         ? "This study profile wasn't found in your account."
         : 'Could not reach the backend. Is it running on localhost:8000?')
     }
@@ -49,7 +50,7 @@ export default function Dashboard() {
   async function handleFileUpload(e) {
     const file = e.target.files[0]
     if (!file) return
-    setUploading(true); setUploadError(null); setUploadResult(null)
+    setUploading(true); setUploadError(null); setUploadResult(null); setActionError(null)
     try {
       setUploadResult(await api.uploadMaterial(studentId, file))
       resetSession()
@@ -64,23 +65,28 @@ export default function Dashboard() {
 
   async function startSession() {
     setLoading(true)
+    setActionError(null)
     try {
-      setExplanation(await api.explain(studentId))
+      const exp = await api.explain(studentId)
+      setExplanation(exp)
       setStage('explained')
     } catch (err) {
-      setError('Could not start a study session.')
+      console.error(err)
+      setActionError(err.message || 'Could not start a study session. Please try again.')
     } finally { setLoading(false) }
   }
 
   async function chooseTestType(type) {
     setLoading(true)
+    setActionError(null)
     try {
       const res = await api.test(studentId, type, 5)
       setQuestions(res.questions); setQIndex(0); setAnswers([])
       setAnswer(''); setSelected(''); setEvaluation(null)
       setStage('quiz')
     } catch (err) {
-      setError('Could not generate the test.')
+      console.error(err)
+      setActionError(err.message || 'Could not generate the test. Please try again.')
     } finally { setLoading(false) }
   }
 
@@ -90,6 +96,7 @@ export default function Dashboard() {
 
   async function submit() {
     setLoading(true)
+    setActionError(null)
     try {
       const result = await api.submitAnswer({
         student_id: Number(studentId),
@@ -106,7 +113,8 @@ export default function Dashboard() {
       setStage('result')
       await refresh()
     } catch (err) {
-      setError('Could not submit your answer.')
+      console.error(err)
+      setActionError(err.message || 'Could not submit your answer. Please try again.')
     } finally { setLoading(false) }
   }
 
@@ -119,10 +127,13 @@ export default function Dashboard() {
     }
   }
 
-  if (error) return (
+  if (pageError) return (
     <div className="shell">
-      <div className="card" style={{ borderColor: 'var(--danger)', background: 'var(--danger-soft)' }}>
-        <p style={{ color: 'var(--danger-text)', margin: 0, fontWeight: 500 }}>{error}</p>
+      <div className="card" style={{ borderColor: 'var(--danger)', background: 'var(--danger-soft)', textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+        <p style={{ color: 'var(--danger-text)', margin: '0 0 1.2rem 0', fontWeight: 600, fontSize: '1.05rem' }}>{pageError}</p>
+        <button onClick={() => navigate('/')} style={{ padding: '0.6rem 1.2rem' }}>
+          ← Back to Study Sessions
+        </button>
       </div>
     </div>
   )
@@ -141,6 +152,28 @@ export default function Dashboard() {
 
   return (
     <div className="shell">
+      {actionError && (
+        <div className="card" style={{
+          borderColor: 'var(--danger)',
+          background: 'var(--danger-soft)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0.85rem 1.2rem',
+          marginBottom: '1rem',
+        }}>
+          <p style={{ color: 'var(--danger-text)', margin: 0, fontWeight: 500, fontSize: '0.92rem' }}>
+            ⚠️ {actionError}
+          </p>
+          <button
+            className="secondary"
+            onClick={() => setActionError(null)}
+            style={{ padding: '0.3rem 0.65rem', fontSize: '0.82rem', marginLeft: '1rem' }}
+          >
+            ✕ Dismiss
+          </button>
+        </div>
+      )}
       {/* Welcome Banner Card */}
       <div className="card" style={{ borderLeft: '4px solid var(--primary)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.8rem' }}>
@@ -303,13 +336,13 @@ export default function Dashboard() {
           <div className="explain-box">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: 'var(--success-text)', fontSize: '0.9rem', marginBottom: '0.4rem' }}>
               <span>📖</span>
-              <span>Concept Briefing: {explanation.decision.concept || 'General Review'}</span>
+              <span>Concept Briefing: {explanation.decision?.concept || 'General Review'}</span>
             </div>
             <p>{explanation.explanation}</p>
             {explanation.sources && explanation.sources.length > 0 && (
               <details style={{ marginTop: '0.9rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                 <summary style={{ cursor: 'pointer', fontWeight: 600 }}>
-                  🔍 Grounded Source Evidence ({explanation.sources.length} passages via {explanation.sources[0].method} RAG)
+                  🔍 Grounded Source Evidence ({explanation.sources.length} passages via {explanation.sources[0]?.method || 'hybrid'} RAG)
                 </summary>
                 <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {explanation.sources.map((src) => (

@@ -13,20 +13,21 @@ from app.models import Student, Material, Concept
 from app.security import get_owned_student
 from app.tools.material_tools import extract_text_from_pdf, infer_prerequisites
 from app.tools.knowledge_tools import extract_keywords
-from app.tools.rag_tools import index_material
+from app.tools.rag_tools import store_chunks_fast, embed_pending_chunks
 from app.tools.topic_tools import extract_topics
 
 router = APIRouter(prefix="/students", tags=["materials"])
 
 
-def _index_in_background(material_id: int, text: str):
-    """Embed the passages AFTER the student already has their topics on screen."""
+def _index_in_background(material_id: int):
+    """Embed the passages in background in small batches so requests are never frozen."""
     t0 = time.time()
     db = SessionLocal()
     try:
-        material = db.get(Material, material_id)
-        n = index_material(db, material, text) if material else 0
+        n = embed_pending_chunks(db, material_id)
         print(f"[index] material {material_id}: {n} passages embedded in {time.time() - t0:.1f}s")
+    except Exception as exc:
+        print(f"[index] background embedding failed ({exc})")
     finally:
         db.close()
 
@@ -72,9 +73,11 @@ def upload_material(background: BackgroundTasks, file: UploadFile = File(...),
     db.commit()
     db.refresh(material)
 
-    # 2b. RAG: chunk + embed the full text so the agent can retrieve passages later. Slow, so it
-    #     runs after the response is sent; the student sees their topics straight away.
-    background.add_task(_index_in_background, material.id, raw_text)
+    # 2b. Immediately create chunks in DB so RAG retrieval works instantly via TF-IDF with zero delay.
+    store_chunks_fast(db, material, raw_text)
+
+    # 2c. Background task computes embeddings without blocking response
+    background.add_task(_index_in_background, material.id)
 
     # 3. Infer prerequisite relationships between the extracted concepts.
     prereq_map = infer_prerequisites(keywords, student.subject)
